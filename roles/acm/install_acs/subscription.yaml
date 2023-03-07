@@ -42,7 +42,7 @@ metadata:
   name: acs-install-policies-subscription
   namespace: acs-policies
 spec:
-  channel: policies/acs-install-policies
+  channel: acs-policies/acs-install-policies
   placement:
     placementRef:
       kind: PlacementRule
