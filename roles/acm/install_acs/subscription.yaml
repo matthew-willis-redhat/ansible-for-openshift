@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: policies
+  name: acs-policies
 ---
 apiVersion: app.k8s.io/v1beta1
 kind: Application
 metadata:
   name: acs-policies
-  namespace: policies
+  namespace: acs-policies
 spec:
   componentKinds:
     - group: apps.open-cluster-management.io
@@ -25,22 +25,22 @@ metadata:
   annotations:
     apps.open-cluster-management.io/reconcile-rate: medium
   name: acs-install-policies
-  namespace: policies
+  namespace: acs-policies
 spec:
   type: Git
-  pathname: https://github.com/skylarscaling/ansible-for-openshift/roles/acm/install_acs
+  pathname: https://github.com/skylarscaling/acm-install-acs.git
 ---
 apiVersion: apps.open-cluster-management.io/v1
 kind: Subscription
 metadata:
   annotations:
     apps.open-cluster-management.io/git-branch: main
-    apps.open-cluster-management.io/git-path: policygenerator/kustomize
+    # apps.open-cluster-management.io/git-path: N/A
     apps.open-cluster-management.io/reconcile-option: merge
   labels:
     app: acs-install-policies
   name: acs-install-policies-subscription
-  namespace: policies
+  namespace: acs-policies
 spec:
   channel: policies/acs-install-policies
   placement:
@@ -54,7 +54,7 @@ metadata:
   labels:
     app: acs-install-policies
   name: acs-install-policies-placement
-  namespace: policies
+  namespace: acs-policies
 spec:
   clusterConditions:
     - status: "True"
