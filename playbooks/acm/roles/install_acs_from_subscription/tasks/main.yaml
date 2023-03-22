@@ -1,0 +1,15 @@
+---
+- name: Install ACS via ACM
+
+- name: Get API tokenfile
+  include_vars: "{{ acm_service_account_tokenfile }}"
+
+- name: Apply acs install module repo subscription
+  k8s:
+    host: "https://api.{{ cluster_address }}:6443"
+    validate_certs: no
+    api_key: "{{ acm_token_var }}"
+    src: "{{ role_path }}/files/subscription.yaml"
+    state: "{{ state }}"
+    api_version: v1
+...

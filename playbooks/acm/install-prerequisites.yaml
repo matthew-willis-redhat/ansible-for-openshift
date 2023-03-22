@@ -1,0 +1,16 @@
+---
+- name: Install Pre-Requisites for ACM Playbooks
+  gather_facts: false
+  hosts: localhost
+  tasks:
+    - name: Download required Python modules
+      pip:
+        name: "{{ item }}"
+      loop:
+        - kubernetes
+        - openshift
+        - boto3
+
+    - name: Install required collections from Ansible Galaxy
+      local_action: command ansible-galaxy collection install -r files/acm-requirements.yaml
+...

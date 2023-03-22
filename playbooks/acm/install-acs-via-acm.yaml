@@ -1,0 +1,9 @@
+---
+- name: Install Red Hat Advanced Cluster Security (RHACS) via Advanced Cluster Management (RHACM)
+  gather_facts: false
+  hosts: localhost
+  tasks:
+    - name: Install ACS
+      include_role:
+        name: install_acs_from_subscription
+...

@@ -1,0 +1,5 @@
+---
+state: present
+acm_service_account_name: acm-ansible-playbook-service-account
+acm_service_account_namespace: acm-ansible-playbook-access
+...
