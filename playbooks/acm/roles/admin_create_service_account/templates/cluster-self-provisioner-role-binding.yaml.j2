@@ -1,13 +1,12 @@
-kind: RoleBinding
+kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: acm-admin-binding
-  namespace: open-cluster-management
+  name: acm-cluster-self-provisioner-binding
 subjects:
   - kind: ServiceAccount
     name: {{ acm_service_account_name }}
-    namespace: ansible-playbook-access
+    namespace: {{ acm_service_account_namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: 'open-cluster-management:admin'
+  name: self-provisioner

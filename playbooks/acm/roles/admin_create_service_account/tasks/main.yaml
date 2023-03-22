@@ -76,4 +76,10 @@
     dest: "{{ acm_service_account_tokenfile }}"
     content: "{{ encrypted_var.stdout }}"
   when: state == "present"
+
+- name: Remove token file
+  file:
+    path: "{{ acm_service_account_tokenfile }}"
+    state: absent
+  when: state == "absent"
 ...

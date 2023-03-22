@@ -5,7 +5,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: {{ acm_service_account_name }}
-    namespace: ansible-playbook-access
+    namespace: {{ acm_service_account_namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
