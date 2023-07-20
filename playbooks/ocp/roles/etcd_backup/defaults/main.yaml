@@ -1,0 +1,7 @@
+---
+etcd_backup:
+  namespace: etcd-backup
+etcd_backup_loc:
+  path: "{{ etcd_backup_path }}"/etcd-backup  # e.g. /vol/example-path/etcd-backup
+  server: "{{ etcd_server }}"                 # e.g. srv01.sub.example.com
+...

@@ -1,0 +1,5 @@
+---
+state: present
+ocp_service_account_name: ocp-ansible-playbook-service-account
+ocp_service_account_namespace: ocp-ansible-playbook-access
+...
