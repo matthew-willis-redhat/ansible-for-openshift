@@ -30,6 +30,7 @@ There are a handful of tools that you'll need to be able to effectively work wit
 Any commands provided are for linux systems.
 
 - [Python 3+](https://www.python.org/downloads/) Installed
+- [pip and setuptools](https://packaging.python.org/en/latest/tutorials/installing-packages/#ensure-pip-setuptools-and-wheel-are-up-to-date) Installed
 - [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) Installed
 - [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) Installed
 

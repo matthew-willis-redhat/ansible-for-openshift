@@ -1,3 +1,8 @@
+# Install Prerequisites
+```
+$ ansible-playbook install-acm-prerequisites.yaml --ask-become-pass
+```
+
 # Create ACM Service Account
 `admin_create_service_account` will create a ServiceAccount in OCP and capture and encrypt the api token for use with further automation.
 
@@ -12,5 +17,5 @@ $ ansible-playbook create-acm-service-account.yaml -e cluster_address=<cluster a
 
 Example:
 ```
-$ ansible-playbook playbooks/acm/install-acs-via-acm.yaml -e cluster_address=<cluster address> --vault-password-file=~/.passfile
+$ ansible-playbook install-acs-via-acm.yaml -e cluster_address=<cluster address> --vault-password-file=~/.passfile
 ```
