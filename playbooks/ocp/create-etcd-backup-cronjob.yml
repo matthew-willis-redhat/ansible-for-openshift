@@ -1,0 +1,11 @@
+---
+- name: Create ETCD Backup CronJob Pre-Requisites for OCP Playbooks
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: "[INCLUDE ROLE] - ETCD Backup"
+      ansible.builtin.include_role:
+        name: etcd_backup
+...

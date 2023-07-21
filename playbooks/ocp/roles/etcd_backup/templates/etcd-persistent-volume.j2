@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ etcd_backup_pv }}
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 100Gi
+  nfs:
+    path: {{ etcd_backup_location_path }}
+    server: {{ etcd_backup_location_server }}
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem

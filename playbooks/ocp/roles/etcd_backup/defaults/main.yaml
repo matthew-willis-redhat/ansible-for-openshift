@@ -1,7 +1,40 @@
 ---
-etcd_backup:
-  namespace: etcd-backup
-etcd_backup_loc:
-  path: "{{ etcd_backup_path }}"/etcd-backup  # e.g. /vol/example-path/etcd-backup
-  server: "{{ etcd_server }}"                 # e.g. srv01.sub.example.com
+
+
+# Namespace variable
+etcd_backup_namespace: etcd-backup
+
+# Backup location server and path variables
+# srv01.sub.example.com
+# /vol/example-path/etcd-backup
+etcd_backup_path:
+etcd_backup_location_server: "{{ etcd_server }}"
+etcd_backup_location_path: "{{ etcd_backup_path }}/etcd-backup"
+
+# Persistent Volume and Persistent Volume Claim variables
+etcd_backup_pvc: pvc-etcd-backup
+etcd_backup_pv: pv-etcd-backup
+
+# Persistent Volume Claim size
+etcd_backup_pvc_size: 100Gi
+
+# Service Account variable
+etcd_backup_service_account: etcd-backup-sa
+
+# CronJob name variable
+etcd_backup_cronjob: cronjob-etcd-backup 
+
+# Cluster Role and Cluster Role Binding variables
+etcd_cluster_role_name: cluster-etcd-backup
+etcd_cluster_role_binding: etcd-backup
+
+# OCP Cluster Name variable
+ocp_cluster_name:
+
+# OCP Cluster Base Domain variable
+install_config_base_domain:
+
+# Host API Port and URL variables
+host_api_port: 6443
+host_api_url: "https://api.{{ ocp_cluster_name }}.{{ install_config_base_domain }}:{{ host_api_port }}"
 ...

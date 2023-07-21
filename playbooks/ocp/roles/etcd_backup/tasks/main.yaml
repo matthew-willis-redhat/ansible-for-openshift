@@ -1,247 +1,75 @@
 ---
+- name: Check if variables are defined
+  ansible.builtin.assert:
+    that: 
+      - login_info.openshift_auth.api_key is defined
+    fail_msg: Missing items. Review defined variables before executing role.
+
 - name: Create ETCD backup Namespace
   kubernetes.core.k8s:
     api_key: "{{ login_info.openshift_auth.api_key }}"
-    host: "https://api.{{ ocp_cluster.name }}.{{ install_config.base_domain }}:6443"
+    host: "{{ host_api_url }}"
     validate_certs: false
-    name: "{{ etcd_backup.namespace }}"
+    name: "{{ etcd_backup_namespace }}"
     api_version: v1
     kind: Namespace
     state: present
 
-- name: Create ETCD Backup SA
+- name: Create ETCD Backup Service Account
   kubernetes.core.k8s:
     api_key: "{{ login_info.openshift_auth.api_key }}"
-    host: "https://api.{{ ocp_cluster.name }}.{{ install_config.base_domain }}:6443"
+    host: "{{ host_api_url }}"
     validate_certs: false
     state: present
-    definition:
-      apiVersion: v1
-      kind: ServiceAccount
-      metadata:
-        name: etcd-backup-sa
-        namespace: "{{ etcd_backup.namespace }}"
-        labels:
-          app: cronjob-etcd-backup
-
+    template: etcd-service-account.j2
+      
 - name: Create etcd-backup ClusterRole
   kubernetes.core.k8s:
     api_key: "{{ login_info.openshift_auth.api_key }}"
-    host: "https://api.{{ ocp_cluster.name }}.{{ install_config.base_domain }}:6443"
+    host: "{{ host_api_url }}"
     validate_certs: false
     state: present
-    definition:
-      apiVersion: rbac.authorization.k8s.io/v1
-      kind: ClusterRole
-      metadata:
-        name: cluster-etcd-backup
-      rules:
-        - apiGroups:
-            - ''
-          resources:
-            - nodes
-          verbs:
-            - get
-            - list
-        - apiGroups:
-            - ''
-          resources:
-            - pods
-            - pods/log
-          verbs:
-            - get
-            - list
-            - create
-            - delete
-            - watch
-        - apiGroups:
-            - ''
-          resources:
-            - namespaces
-          verbs:
-            - get
-            - list
-            - create
-            - delete
-
+    template: etcd-cluster-role.j2
+      
 - name: Create ETCD Backup ClusterRoleBinding
   kubernetes.core.k8s:
     state: present
     api_key: "{{ login_info.openshift_auth.api_key }}"
-    host: "https://api.{{ ocp_cluster.name }}.{{ install_config.base_domain }}:6443"
+    host: "{{ host_api_url }}"
     validate_certs: false
-    definition:
-      apiVersion: rbac.authorization.k8s.io/v1
-      kind: ClusterRoleBinding
-      metadata:
-        name: etcd-backup
-        labels:
-          app: cronjob-etcd-backup
-      subjects:
-        - kind: ServiceAccount
-          name: etcd-backup-sa
-          namespace: "{{ etcd_backup.namespace }}"
-      roleRef:
-        apiGroup: rbac.authorization.k8s.io
-        kind: ClusterRole
-        name: cluster-etcd-backup
+    template: etcd-cluster-role-binding.j2
       
 - name: Create ETCD Backup Persistent Volume
   kubernetes.core.k8s:
     state: present
     api_key: "{{ login_info.openshift_auth.api_key }}"
-    host: "https://api.{{ ocp_cluster.name }}.{{ install_config.base_domain }}:6443"
+    host: "{{ host_api_url }}"
     validate_certs: false
-    namespace: "{{ etcd_backup.namespace }}"
-    definition:
-      apiVersion: v1
-      kind: PersistentVolume
-      metadata:
-        name: pv-etcd-backup
-      spec:
-        accessModes:
-        - ReadWriteMany
-        capacity:
-          storage: 100Gi
-        nfs:
-          path: "{{ etcd_backup_loc.path }}"
-          server: "{{ etcd_backup_loc.server }}"
-        persistentVolumeReclaimPolicy: Retain
-        volumeMode: Filesystem
-
+    namespace: "{{ etcd_backup_namespace }}"
+    template: etcd-persistent-volume.j2
+      
 - name: Create ETCD Backup Persistent Volume Claim
   kubernetes.core.k8s:
     state: present
     api_key: "{{ login_info.openshift_auth.api_key }}"
-    host: "https://api.{{ ocp_cluster.name }}.{{ install_config.base_domain }}:6443"
+    host: "{{ host_api_url }}"
     validate_certs: false
-    namespace: "{{ etcd_backup.namespace }}"
-    definition:
-      apiVersion: v1
-      kind: PersistentVolumeClaim
-      metadata:
-        name: pvc-etcd-backup
-      spec:
-        accessModes:
-        - ReadWriteMany
-        resources:
-          requests:
-            storage: 100Gi
-        volumeName: pv-etcd-backup
-        storageClassName: ""
-
-- name: Add Secure Context Constraints to etcd-backup Service Service Account 
+    namespace: "{{ etcd_backup_namespace }}"
+    template: etcd-persistent-volume-claim.j2
+      
+- name: "Add Secure Context Constraints to Service Account - {{ etcd_backup_service_account }}"
   kubernetes.core.k8s:
     state: present
     api_key: "{{ login_info.openshift_auth.api_key }}"
-    host: "https://api.{{ ocp_cluster.name }}.{{ install_config.base_domain }}:6443"
+    host: "{{ host_api_url }}"
     validate_certs: false
-    definition:
-      apiVersion: rbac.authorization.k8s.io/v1
-      kind: ClusterRoleBinding
-      metadata: 
-        name: system:openshift:scc:privileged
-      roleRef:
-        apiGroup: rbac.authorization.k8s.io
-        kind: ClusterRole
-        name: system:openshift:scc:privileged
-      subjects:
-      - kind: ServiceAccount
-        name: etcd-backup-sa
-        namespace: "{{ etcd_backup.namespace }}"
-
+    template: etcd-cluster-role-binding-scc.j2
+      
 - name: Create CronJob for ETCD Backup
   kubernetes.core.k8s:
     state: present
     api_key: "{{ login_info.openshift_auth.api_key }}"
-    host: "https://api.{{ ocp_cluster.name }}.{{ install_config.base_domain }}:6443"
+    host: "{{ host_api_url }}"
     validate_certs: false
-    namespace: "{{ etcd_backup.namespace }}"
-    definition:
-      apiVersion: batch/v1
-      kind: CronJob
-      metadata:
-        labels:
-          app: cronjob-etcd-backup
-        name: cronjob-etcd-backup
-      spec:
-        concurrencyPolicy: Forbid
-        failedJobsHistoryLimit: 5
-        jobTemplate:
-          metadata:
-            labels:
-              app: cronjob-etcd-backup
-          spec:
-            backoffLimit: 0
-            template:
-              metadata:
-                labels:
-                  app: cronjob-etcd-backup
-              spec:
-                activeDeadlineSeconds: 500
-                containers:
-                - command:
-                  - /bin/bash
-                  - -c
-                  - cp -rp /tmp/etcd-backup/backup/* /tmp/pvc-backup/${environment}/ &&
-                    find /tmp/pvc-backup/${environment} -type f -mtime +"15" -delete
-                  env:
-                  - name: environment
-                    value: "{{ ocp_cluster.name }}"
-                  image: registry.redhat.io/openshift4/ose-cli:v4.10.0
-                  imagePullPolicy: IfNotPresent
-                  name: copy
-                  resources: {}
-                  terminationMessagePath: /dev/termination-log
-                  terminationMessagePolicy: File
-                  volumeMounts:
-                  - mountPath: /tmp/etcd-backup
-                    name: etcd-backup-host
-                  - mountPath: /tmp/pvc-backup
-                    name: etcd-backup-nfs-vol
-                dnsPolicy: ClusterFirst
-                hostPID: true
-                initContainers:
-                - command:
-                  - /bin/bash
-                  - -vc
-                  - oc debug node/$MASTER_NODE_NAME -- bash -c 'chroot /host sudo -E mkdir
-                    -p /home/core/backup && chroot /host sudo -E /usr/local/bin/cluster-backup.sh
-                    /home/core/backup/ && chroot /host sudo -E find /home/core/backup -type
-                    f -mmin +"15" -delete'
-                  env:
-                  - name: MASTER_NODE_NAME
-                    valueFrom:
-                      fieldRef:
-                        apiVersion: v1
-                        fieldPath: spec.nodeName
-                  image: registry.redhat.io/openshift4/ose-cli
-                  imagePullPolicy: IfNotPresent
-                  name: backup
-                  resources: {}
-                  terminationMessagePath: /dev/termination-log
-                  terminationMessagePolicy: File
-                nodeSelector:
-                  node-role.kubernetes.io/master: ""
-                restartPolicy: Never
-                schedulerName: default-scheduler
-                securityContext: {}
-                serviceAccount: etcd-backup-sa
-                serviceAccountName: etcd-backup-sa
-                terminationGracePeriodSeconds: 30
-                tolerations:
-                - effect: NoSchedule
-                  key: node-role.kubernetes.io/master
-                volumes:
-                - name: etcd-backup-nfs-vol
-                  persistentVolumeClaim:
-                    claimName: pvc-etcd-backup
-                - hostPath:
-                    path: /home/core
-                    type: Directory
-                  name: etcd-backup-host
-        schedule: 35 04 * * *
-        successfulJobsHistoryLimit: 5
-        suspend: false
-
-        
+    namespace: "{{ etcd_backup_namespace }}"
+    template: etcd-cron-job.j2
