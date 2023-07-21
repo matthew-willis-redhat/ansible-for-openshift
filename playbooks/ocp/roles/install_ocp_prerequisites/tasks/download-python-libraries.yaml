@@ -1,9 +1,6 @@
 ---
-- name: Download requisite Python modules
-  command: "pip3 install {{ item }}"
-  loop:
-    - setuptools
-    - kubernetes
-    - openshift
-    - boto3
+# Download Python libraries task file
+- name: Download and install the required Python modules
+  ansible.builtin.pip:
+    name: "{{ python_packages }}"
 ...

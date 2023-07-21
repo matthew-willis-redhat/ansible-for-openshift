@@ -1,0 +1,31 @@
+---
+# defaults file for install_ocp_prerequisites role
+
+# bin directory to store OpenShift binaries
+bin_dir: /usr/local/bin
+
+# Force OpenShift boolean
+force_update: false
+
+# OpenShift version
+openshift_version: stable-4.12
+
+# OpenShift install and client tar file URLs
+openshift_installer_url: https://mirror.openshift.com/pub/openshift-v4/clients/ocp/{{ openshift_version }}/openshift-install-linux.tar.gz
+openshift_cli_url: https://mirror.openshift.com/pub/openshift-v4/clients/ocp/{{ openshift_version }}/openshift-client-linux.tar.gz
+
+# File location of OpenShift installer and oc binaries
+openshift_installer_binary: "{{ bin_dir }}/openshift-install"
+oc_binary: "{{ bin_dir }}/oc"
+
+openshift_binaries:  
+  - kubectl
+  - oc
+  - openshift-install
+
+python_packages:
+  - setuptools
+  - kubernetes
+  - openshift
+  - boto3
+...

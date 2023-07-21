@@ -1,15 +1,29 @@
 ---
 - name: Store vault password to local file
-  gather_facts: false
   hosts: localhost
+  connection: local
+  gather_facts: false
+
   vars_prompt:
-    - name: vaultpass
-      prompt: Enter Vault Password
-      private: yes
-      confirm: yes
+    - name: vault_password
+      prompt: Enter vault password
+      private: true
+      confirm: true
+    - name: vault_directory
+      prompt: Enter vault directory
+      private: false
+    - name: vault_filename
+      prompt: Entet vault filename
+      private: false
+
   tasks:
     - name: Populate password file
-      copy:
-        dest: "~/.passfile"
-        content: "{{ vaultpass }}"
+      ansible.builtin.copy:
+        dest: "{{ vault_directory }}/.{{ vault_filename }}"
+        content: "{{ vault_password }}"
+        mode: "0600"
+
+    - name: Print important message
+      ansible.builtin.debug:
+        msg: "Remember to add '{{ vault_directory }}/.{{ vault_filename }}' to .gitignore if git repository."
 ...

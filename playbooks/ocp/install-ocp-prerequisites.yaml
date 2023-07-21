@@ -1,10 +1,11 @@
 ---
 - name: Install Pre-Requisites for OCP Playbooks
-  gather_facts: false
-  connection: local
   hosts: localhost
+  connection: local
+  gather_facts: false
+
   tasks:
-    - name: Download required utilities
-      include_role:
+    - name: "[INCLUDE ROLE] - Download required utilities"
+      ansible.builtin.include_role:
         name: install_ocp_prerequisites
 ...

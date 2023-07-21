@@ -1,54 +1,75 @@
 ---
-- name: "{{ bin_dir }} is present"
-  file:
+# Download OCP binaries task file
+- name: "Check if directory is present - {{ bin_dir }}"
+  ansible.builtin.stat:
     path: "{{ bin_dir }}"
-    state: directory
+  register: bin_directory
 
+- name: "Check if directory is present - {{ bin_dir }}"
+  ansible.builtin.assert:
+    that:
+      - bin_directory.stat.exists
+    fail_msg: "{{ bin_dir }} is missing. Verify operating system bin directory is correct."
+    success_msg: "{{ bin_dir }} is present"
+
+# - name: "Create {{ bin_dir }} directory"
+#   ansible.builtin.file:
+#     path: "{{ bin_dir }}"
+#     state: directory
+#   when: not bin_directory.stat.exists
+
+# Remove 
 - name: Removing existing binaries to force update
+  when: force_update | bool
   block:
-    - name: Removing openshift_install
+
+    - name: "[BLOCK TASK] - Removing openshift-install binary file"
       ansible.builtin.file:
-        path: "(( openshift_install }}"
+        path: "{{ openshift_installer_binary }}"
         state: absent
 
-    - name: Removing oc
+    - name: "[BLOCK TASK] - Removing oc binary file"
       ansible.builtin.file:
-        path: "{{ oc }}"
+        path: "{{ oc_binary }}"
         state: absent
-  when: force_update|bool
 
-- name: Check if OpenShift installer is already installed
-  stat:
-    path: "{{ openshift_install }}"
-  register: openshift_install_stat
+- name: Check if openshift-install binary file is already installed or removed
+  ansible.builtin.stat:
+    path: "{{ openshift_installer_binary }}"
+  register: openshift_installer_file
 
-- name: Check if oc binary is already installed
-  stat:
-    path: "{{ oc }}"
-  register: oc_binary_stat
+- name: Check if oc binary file is already installed or removed
+  ansible.builtin.stat:
+    path: "{{ oc_binary }}"
+  register: oc_file
 
 - name: Download and install binaries
+  when: >
+    not openshift_installer_file['stat']['exists'] or
+    not oc_file['stat']['exists']
   block:
-    - name: Install OpenShift installer and CLI
-      unarchive:
+
+    - name: "[BLOCK TASK] - Download and install OpenShift installer and CLI binaries"
+      ansible.builtin.debug:
+        msg: "Downloading and installing OpenShift installer and client files."
+
+    - name: "[BLOCK TASK] - Install OpenShift installer and CLI binaries"
+      ansible.builtin.unarchive:
         src: "{{ item }}"
-        remote_src: yes
+        remote_src: true
         dest: "{{ bin_dir }}"
-        mode: '755'
+        mode: "0755"
+        owner: root
+        group: root
         exclude:
           - README.md
       loop:
-        - "{{ openshift_install_url }}"
+        - "{{ openshift_installer_url }}"
         - "{{ openshift_cli_url }}"
 
-    - name: Copy OpenShift installer and CLI
-      file:
+    - name: "[BLOCK TASK] - Update OpenShift installer and CLI binaries for execution"
+      ansible.builtin.file:
         path: "{{ bin_dir }}/{{ item }}"
-        mode: "+x"
-        state: touch
-      loop:
-        - oc
-        - kubectl
-        - openshift-install
-  when: not openshift_install_stat.stat.exists or not oc_binary_stat.stat.exists
+        mode: "0755"
+      loop: "{{ openshift_binaries }}"
 ...

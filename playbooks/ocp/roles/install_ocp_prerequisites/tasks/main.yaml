@@ -1,9 +1,11 @@
 ---
-- name: Download appropriate python libraries
-  import_tasks: download-python-libraries.yaml
-  # become: true
+# main tasks file for install_ocp_prerequisites role
+- name: "[INCLUDE TASK] - Download Python libraries"
+  ansible.builtin.import_tasks:
+    file: download-python-libraries.yaml
 
-- name: Download OCP binaries
-  import_tasks: download-ocp-binaries.yaml
+- name: "[INCLUDE TASK] - Download OCP binaries"
+  ansible.builtin.import_tasks:
+    file: download-ocp-binaries.yaml
   become: true
 ...
