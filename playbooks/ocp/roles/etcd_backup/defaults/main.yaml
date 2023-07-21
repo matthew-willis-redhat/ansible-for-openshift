@@ -15,6 +15,8 @@ etcd_backup_location_path: "{{ etcd_backup_path }}/etcd-backup"
 etcd_backup_pvc: pvc-etcd-backup
 etcd_backup_pv: pv-etcd-backup
 
+# Persistent Volume size
+etcd_backup_pv_size: 100Gi
 # Persistent Volume Claim size
 etcd_backup_pvc_size: 100Gi
 
@@ -22,7 +24,7 @@ etcd_backup_pvc_size: 100Gi
 etcd_backup_service_account: etcd-backup-sa
 
 # CronJob name variable
-etcd_backup_cronjob: cronjob-etcd-backup 
+etcd_backup_cronjob: cronjob-etcd-backup
 
 # Cluster Role and Cluster Role Binding variables
 etcd_cluster_role_name: cluster-etcd-backup
