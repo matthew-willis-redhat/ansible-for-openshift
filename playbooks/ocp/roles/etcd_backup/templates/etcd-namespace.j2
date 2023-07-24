@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ etcd_backup_namespace }}
+  labels:
+    app: {{ etcd_backup_namespace }}
+  annotations:
+    openshift.io/node-selector: ''

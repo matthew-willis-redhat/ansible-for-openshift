@@ -4,7 +4,15 @@
   connection: local
   gather_facts: false
 
+  vars_files:
+    - vars/ocp_cluster.yml
+    - vars/ocp_login.yml
+
   tasks:
+    - name: "[INCLUDE ROLE] - OCP Cluster Login"
+      ansible.builtin.include_role:
+        name: cluster_login
+
     - name: "[INCLUDE ROLE] - ETCD Backup"
       ansible.builtin.include_role:
         name: etcd_backup

@@ -1,0 +1,22 @@
+- name: Get API Token from OCP Cluster
+  community.okd.openshift_auth:
+    host: "{{ host_api_url }}"
+    username: "{{ ocp_cluster_username }}"
+    password: "{{ ocp_cluster_password }}"
+    validate_certs: false
+  register: ocp_auth
+
+- name: Asset authentication
+  ansible.builtin.assert:
+    that: ocp_auth['openshift_auth']['api_key'] is defined
+
+# - name: Get a list of all pods from any namespace
+#   kubernetes.core.k8s_info:
+#     kind: Pod
+#     api_key: "{{ ocp_auth['openshift_auth']['api_key'] }}"
+#     validate_certs: false
+#   register: pod_list
+
+# - name: List all pods
+#   ansible.builtin.debug:
+#     var: pod_list

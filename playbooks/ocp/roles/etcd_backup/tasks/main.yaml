@@ -2,22 +2,23 @@
 - name: Check if variables are defined
   ansible.builtin.assert:
     that:
-      - login_info.openshift_auth.api_key is defined
+      # - login_info.openshift_auth.api_key is defined
+      - ocp_auth['openshift_auth']['api_key'] is defined
     fail_msg: Missing items. Review defined variables before executing role.
 
 - name: Create ETCD backup Namespace
   kubernetes.core.k8s:
-    api_key: "{{ login_info.openshift_auth.api_key }}"
+    # api_key: "{{ login_info.openshift_auth.api_key }}"
+    api_key: "{{ ocp_auth['openshift_auth']['api_key'] }}"
     host: "{{ host_api_url }}"
     validate_certs: false
-    name: "{{ etcd_backup_namespace }}"
-    api_version: v1
-    kind: Namespace
     state: present
+    template: etcd-namespace.j2
 
 - name: Create ETCD Backup Service Account
   kubernetes.core.k8s:
-    api_key: "{{ login_info.openshift_auth.api_key }}"
+    # api_key: "{{ login_info.openshift_auth.api_key }}"
+    api_key: "{{ ocp_auth['openshift_auth']['api_key'] }}"
     host: "{{ host_api_url }}"
     validate_certs: false
     state: present
@@ -25,7 +26,8 @@
 
 - name: Create etcd-backup ClusterRole
   kubernetes.core.k8s:
-    api_key: "{{ login_info.openshift_auth.api_key }}"
+    # api_key: "{{ login_info.openshift_auth.api_key }}"
+    api_key: "{{ ocp_auth['openshift_auth']['api_key'] }}"
     host: "{{ host_api_url }}"
     validate_certs: false
     state: present
@@ -33,43 +35,46 @@
 
 - name: Create ETCD Backup ClusterRoleBinding
   kubernetes.core.k8s:
-    state: present
-    api_key: "{{ login_info.openshift_auth.api_key }}"
+    # api_key: "{{ login_info.openshift_auth.api_key }}"
+    api_key: "{{ ocp_auth['openshift_auth']['api_key'] }}"
     host: "{{ host_api_url }}"
     validate_certs: false
+    state: present
     template: etcd-cluster-role-binding.j2
-
-- name: Create ETCD Backup Persistent Volume
-  kubernetes.core.k8s:
-    state: present
-    api_key: "{{ login_info.openshift_auth.api_key }}"
-    host: "{{ host_api_url }}"
-    validate_certs: false
-    namespace: "{{ etcd_backup_namespace }}"
-    template: etcd-persistent-volume.j2
-
-- name: Create ETCD Backup Persistent Volume Claim
-  kubernetes.core.k8s:
-    state: present
-    api_key: "{{ login_info.openshift_auth.api_key }}"
-    host: "{{ host_api_url }}"
-    validate_certs: false
-    namespace: "{{ etcd_backup_namespace }}"
-    template: etcd-persistent-volume-claim.j2
 
 - name: "Add Secure Context Constraints to Service Account - {{ etcd_backup_service_account }}"
   kubernetes.core.k8s:
-    state: present
-    api_key: "{{ login_info.openshift_auth.api_key }}"
+    # api_key: "{{ login_info.openshift_auth.api_key }}"
+    api_key: "{{ ocp_auth['openshift_auth']['api_key'] }}"
     host: "{{ host_api_url }}"
     validate_certs: false
+    state: present
     template: etcd-cluster-role-binding-scc.j2
 
-- name: Create CronJob for ETCD Backup
-  kubernetes.core.k8s:
-    state: present
-    api_key: "{{ login_info.openshift_auth.api_key }}"
-    host: "{{ host_api_url }}"
-    validate_certs: false
-    namespace: "{{ etcd_backup_namespace }}"
-    template: etcd-cron-job.j2
+# - name: Create ETCD Backup Persistent Volume
+#   kubernetes.core.k8s:
+#     # api_key: "{{ login_info.openshift_auth.api_key }}"
+#     api_key: "{{ ocp_auth['openshift_auth']['api_key'] }}"
+#     host: "{{ host_api_url }}"
+#     validate_certs: false
+#     namespace: "{{ etcd_backup_namespace }}"
+#     state: present
+#     template: etcd-persistent-volume.j2
+
+# - name: Create ETCD Backup Persistent Volume Claim
+#   kubernetes.core.k8s:
+#     state: present
+#     api_key: "{{ login_info.openshift_auth.api_key }}"
+#     host: "{{ host_api_url }}"
+#     validate_certs: false
+#     namespace: "{{ etcd_backup_namespace }}"
+#     template: etcd-persistent-volume-claim.j2
+
+# - name: Create CronJob for ETCD Backup
+#   kubernetes.core.k8s:
+#     state: present
+#     api_key: "{{ login_info.openshift_auth.api_key }}"
+#     host: "{{ host_api_url }}"
+#     validate_certs: false
+#     namespace: "{{ etcd_backup_namespace }}"
+#     template: etcd-cron-job.j2

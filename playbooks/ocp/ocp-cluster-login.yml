@@ -1,0 +1,14 @@
+---
+- name: Cluster Login
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars/ocp_login.yml
+
+  tasks:
+    - name: "[INCLUDE ROLE] - Cluster Login"
+      ansible.builtin.include_role:
+        name: cluster_login
+...

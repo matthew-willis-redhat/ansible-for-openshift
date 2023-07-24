@@ -27,7 +27,7 @@ spec:
               find /tmp/pvc-backup/${environment} -type f -mtime +"15" -delete
             env:
             - name: environment
-              value: {{ ocp_cluster_name }}
+              value: {{ cluster_name }}
             image: registry.redhat.io/openshift4/ose-cli:v4.10.0
             imagePullPolicy: IfNotPresent
             name: copy
