@@ -13,7 +13,7 @@ $ ansible-playbook create-acm-service-account.yaml -e cluster_address=<cluster a
 ```
 
 # Install ACS via ACM Subscription
-`install_acs_from_subscription` installs ACS to the hub and managed clusters using ACM policies, creating using a Subscription
+`install_acs_from_subscription` installs ACS to the hub and managed clusters using ACM policies, created using a Subscription.
 
 Example:
 ```
